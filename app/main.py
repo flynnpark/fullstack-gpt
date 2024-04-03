@@ -1,5 +1,9 @@
 import streamlit as st
 
-st.title("Hello, Streamlit!")
-st.subheader("Welcome to Streamlit!")
-st.markdown("""#### I love it!""")
+st.write("Hello, world!")
+
+st.write([1, 2, 3])
+
+st.write({"key": "value"})
+
+st.selectbox("Choose a number", ("GPT-3", "GPT-4"))
