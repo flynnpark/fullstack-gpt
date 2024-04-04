@@ -17,12 +17,6 @@ st.set_page_config(
 )
 
 
-llm = ChatOpenAI(
-    temperature=0.1,
-    api_key=st.session_state.get("openai_key"),
-)
-
-
 def make_dir(file_path: str):
     if not os.path.exists(file_path):
         os.makedirs(os.path.dirname(file_path))
@@ -96,7 +90,7 @@ Upload your files on the sidebar.
 
 
 with st.sidebar:
-    openai_key = st.text_input("OpenAI API Key")
+    st.session_state["openai_key"] = st.text_input("OpenAI API Key")
     file = st.file_uploader("Upload a .txt file", type="txt")
     st.link_button(
         "Github Repo", "https://github.com/flynnpark/fullstack-gpt/tree/assignment15"
@@ -110,15 +104,22 @@ if file:
 message = st.chat_input("Type a message...", key="message")
 if message:
     send_message(message, "human")
-    chain = (
-        {
-            "context": retriever | RunnableLambda(format_docs),
-            "question": RunnablePassthrough(),
-        }
-        | prompt
-        | llm
-    )
-    response = chain.invoke(message)
-    send_message(response.content, "ai")
+    if st.session_state.get("openai_key"):
+        llm = ChatOpenAI(
+            temperature=0.1,
+            api_key=st.session_state.get("openai_key"),
+        )
+        chain = (
+            {
+                "context": retriever | RunnableLambda(format_docs),
+                "question": RunnablePassthrough(),
+            }
+            | prompt
+            | llm
+        )
+        response = chain.invoke(message)
+        send_message(response.content, "ai")
+    else:
+        send_message("Please enter an OpenAI API key", "system")
 else:
     st.session_state["messages"] = []
