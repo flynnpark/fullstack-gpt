@@ -97,9 +97,12 @@ with st.sidebar:
     )
 
 if file:
-    retriever = embed_file(file)
-    send_message("I'm ready! Ask away!", "ai", save=False)
-    paint_history()
+    if st.session_state.get("openai_key"):
+        retriever = embed_file(file)
+        send_message("I'm ready! Ask away!", "ai", save=False)
+        paint_history()
+    else:
+        send_message("Please enter an OpenAI API key", "system")
 
 message = st.chat_input("Type a message...", key="message")
 if message:
