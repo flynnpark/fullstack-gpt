@@ -98,6 +98,9 @@ Upload your files on the sidebar.
 with st.sidebar:
     openai_key = st.text_input("OpenAI API Key")
     file = st.file_uploader("Upload a .txt file", type="txt")
+    st.link_button(
+        "Github Repo", "https://github.com/flynnpark/fullstack-gpt/tree/assignment15"
+    )
 
 if file:
     retriever = embed_file(file)
