@@ -7,7 +7,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
 from langchain.storage import LocalFileStore
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores.chroma import Chroma
+from langchain.vectorstores.faiss import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
@@ -39,7 +39,7 @@ def embed_file(file: UploadedFile):
     docs = loader.load_and_split(text_splitter=splitter)
     embeddings = OpenAIEmbeddings(api_key=st.session_state.get("openai_key"))
     cached_embeddings = CacheBackedEmbeddings.from_bytes_store(embeddings, cache_dir)
-    vectorstore = Chroma.from_documents(docs, cached_embeddings)
+    vectorstore = FAISS.from_documents(docs, cached_embeddings)
     retriever = vectorstore.as_retriever()
     return retriever
 
