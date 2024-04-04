@@ -18,8 +18,9 @@ st.set_page_config(
 
 
 def make_dir(file_path: str):
-    if not os.path.exists(file_path):
-        os.makedirs(os.path.dirname(file_path))
+    dirpath = os.path.dirname(file_path)
+    if not os.path.exists(dirpath):
+        os.makedirs(dirpath)
 
 
 @st.cache_resource(show_spinner="Embedding file...")
