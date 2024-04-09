@@ -84,7 +84,7 @@ class Chain:
             }
         )
 
-    @st.cache_data(show_spinner="Loading websites...")
+    @st.cache_resource(show_spinner="Loading websites...")
     def _load_website(_self):
         splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=1000,
@@ -93,6 +93,7 @@ class Chain:
         loader = SitemapLoader(
             web_path=_self.url,
             parsing_function=_self.__parse_page,
+            filter_urls=[r"^(.*\/(ai-gateway|vectorize|workers-ai)\/).*"],
         )
         loader.requests_per_second = 2
         docs = loader.load_and_split(text_splitter=splitter)
@@ -118,7 +119,7 @@ class Chain:
 
 def main():
     st.set_page_config(
-        page_title="SiteGPT - Generate a website with GPT-3",
+        page_title="SiteGPT",
         page_icon="🧊",
     )
     st.title("SiteGPT")
@@ -134,17 +135,17 @@ def main():
         )
         st.session_state["openai_key"] = st.text_input("OpenAI API Key")
         url = st.text_input("Wirte down a URL", placeholder="https://www.example.com")
-        print("url", url)
 
-    if not url and not url.endswith(".xml"):
+    if len(url) > 1 and not url.endswith(".xml"):
         st.error("The URL must end with '.xml'")
         st.stop()
 
-    elif st.session_state.get("openai_key"):
+    elif url and st.session_state.get("openai_key"):
         question = st.text_input("Ask a question")
         chain = Chain(url=url)
-        result = chain.invoke(question)
-        st.markdown(result.content.replace("$", "\$"))  # type: ignore
+        if question:
+            result = chain.invoke(question)
+            st.markdown(result.content.replace("$", "\$"))  # type: ignore
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 answers_prompt_template = """
-Using ONLY the following context answer the user's question. If you can't just say you don't know, don't make anything up.
+Using ONLY the following context answer the user's question with markdown. If you can't just say you don't know, don't make anything up.
 
 Then, give a score to the answer between 0 and 5.
 
