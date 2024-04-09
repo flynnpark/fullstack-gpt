@@ -97,7 +97,12 @@ class Chain:
         )
         loader.requests_per_second = 2
         docs = loader.load_and_split(text_splitter=splitter)
-        vector_store = FAISS.from_documents(docs, OpenAIEmbeddings())
+        vector_store = FAISS.from_documents(
+            docs,
+            OpenAIEmbeddings(
+                api_key=st.session_state["openai_key"],
+            ),
+        )
         return vector_store.as_retriever()
 
     def make_chain(self):
