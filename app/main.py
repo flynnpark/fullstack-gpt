@@ -136,7 +136,7 @@ def main():
     with st.sidebar:
         st.link_button(
             "Github Repo",
-            "https://github.com/flynnpark/fullstack-gpt/tree/assignment16",
+            "https://github.com/flynnpark/fullstack-gpt/tree/assignment17",
         )
         st.session_state["openai_key"] = st.text_input("OpenAI API Key")
         url = st.text_input("Wirte down a URL", placeholder="https://www.example.com")
