@@ -2,6 +2,7 @@ import os
 from typing import Final
 
 import streamlit as st
+from langchain.callbacks.base import BaseCallbackHandler
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import Document
@@ -30,7 +31,28 @@ Use this chatbot to ask questions to an AI about your files! 🤖
 """
 )
 
-llm = ChatOpenAI(temperature=0.1)
+
+class ChatCallbackHandler(BaseCallbackHandler):
+    message = ""
+
+    def on_llm_start(self, *args, **kwargs):
+        self.message_box = st.empty()
+
+    def on_llm_end(self, *args, **kwargs):
+        save_message(self.message, "ai")
+
+    def on_llm_new_token(self, token: str, *args, **kwargs):
+        self.message += token
+        self.message_box.markdown(self.message)
+
+
+llm = ChatOpenAI(
+    temperature=0.1,
+    streaming=True,
+    callbacks=[
+        ChatCallbackHandler(),
+    ],
+)
 
 with st.sidebar:
     file = st.file_uploader("Upload a .txt file", type=["txt"])
@@ -63,11 +85,15 @@ def embed_file(file):
 session_messages = st.session_state.get("messages", [])
 
 
+def save_message(message, role: str):
+    session_messages.append({"role": role, "message": message})
+
+
 def send_message(message, role: str, save: bool = True):
     with st.chat_message(role):
         st.markdown(message)
     if save:
-        session_messages.append({"role": role, "message": message})
+        save_message(message, role)
 
 
 def paint_history():
@@ -108,8 +134,8 @@ if file:
             | prompt
             | llm
         )
-        response = chain.invoke(message)
-        send_message(response.content, "ai")
+        with st.chat_message("ai"):
+            response = chain.invoke(message)
 
 else:
     st.session_state["messages"] = []
