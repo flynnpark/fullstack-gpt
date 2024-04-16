@@ -3,11 +3,14 @@ from typing import Final
 
 import streamlit as st
 from langchain.embeddings import CacheBackedEmbeddings
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema import Document
+from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
 from langchain.storage import LocalFileStore
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_loaders.unstructured import UnstructuredFileLoader
 from langchain_community.vectorstores.faiss import FAISS
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 FILES_DIR: Final[str] = ".cache/files"
 EMBEDDINGS_DIR: Final[str] = ".cache/embeddings"
@@ -26,6 +29,8 @@ Welcome!
 Use this chatbot to ask questions to an AI about your files! 🤖
 """
 )
+
+llm = ChatOpenAI(temperature=0.1)
 
 with st.sidebar:
     file = st.file_uploader("Upload a .txt file", type=["txt"])
@@ -58,7 +63,7 @@ def embed_file(file):
 session_messages = st.session_state.get("messages", [])
 
 
-def send_message(message: str, role: str, save: bool = True):
+def send_message(message, role: str, save: bool = True):
     with st.chat_message(role):
         st.markdown(message)
     if save:
@@ -70,6 +75,24 @@ def paint_history():
         send_message(message["message"], message["role"], save=False)
 
 
+def format_documents(documents: list[Document]):
+    return "\n\n".join([doc.page_content for doc in documents])
+
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """Answer the question using ONLY the following context. If you don't know the answer just say you don't know. DON'T make anything up.\n\nContext: {context}""",
+        ),
+        (
+            "human",
+            """{question}""",
+        ),
+    ]
+)
+
+
 if file:
     retriever = embed_file(file)
     send_message("I'm ready! Ask me anything about the file.", "ai", save=False)
@@ -77,6 +100,16 @@ if file:
     message = st.chat_input("Send message to the AI")
     if message:
         send_message(message, "human")
+        chain = (
+            {
+                "context": retriever | RunnableLambda(format_documents),
+                "question": RunnablePassthrough(),
+            }
+            | prompt
+            | llm
+        )
+        response = chain.invoke(message)
+        send_message(response.content, "ai")
 
 else:
     st.session_state["messages"] = []
