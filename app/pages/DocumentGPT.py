@@ -1,5 +1,4 @@
 import os
-import time
 from typing import Final
 
 import streamlit as st
@@ -28,9 +27,11 @@ Use this chatbot to ask questions to an AI about your files! 🤖
 """
 )
 
-file = st.file_uploader("Upload a .txt file", type=["txt"])
+with st.sidebar:
+    file = st.file_uploader("Upload a .txt file", type=["txt"])
 
 
+@st.cache_resource(show_spinner="Embedding file...")
 def embed_file(file):
     file_content = file.read()
     file_path = f"{FILES_DIR}/{file.name}"
@@ -54,28 +55,28 @@ def embed_file(file):
     return retriever
 
 
-if file:
-    retriever = embed_file(file)
-
-
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
-
-session_messages = st.session_state["messages"]
+session_messages = st.session_state.get("messages", [])
 
 
 def send_message(message: str, role: str, save: bool = True):
     with st.chat_message(role):
-        st.write(message)
-        if save:
-            session_messages.append({"role": role, "message": message})
+        st.markdown(message)
+    if save:
+        session_messages.append({"role": role, "message": message})
 
 
-for message in session_messages:
-    send_message(message["message"], message["role"], save=False)
+def paint_history():
+    for message in session_messages:
+        send_message(message["message"], message["role"], save=False)
 
-message = st.chat_input("Send message to the AI")
-if message:
-    send_message(message, "human")
-    time.sleep(2)
-    send_message("I am a robot 🤖", "ai")
+
+if file:
+    retriever = embed_file(file)
+    send_message("I'm ready! Ask me anything about the file.", "ai", save=False)
+    paint_history()
+    message = st.chat_input("Send message to the AI")
+    if message:
+        send_message(message, "human")
+
+else:
+    st.session_state["messages"] = []
