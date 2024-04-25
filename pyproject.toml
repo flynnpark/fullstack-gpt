@@ -21,6 +21,7 @@ chromadb = "^0.4.24"
 langsmith = "^0.1.38"
 streamlit = "^1.32.2"
 faiss-cpu = "^1.8.0"
+huggingface-hub = "^0.22.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
