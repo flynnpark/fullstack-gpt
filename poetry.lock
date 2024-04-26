@@ -1148,6 +1148,25 @@ protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.1 || >4.21.1,<4
 grpc = ["grpcio (>=1.44.0,<2.0.0.dev0)"]
 
 [[package]]
+name = "gpt4all"
+version = "2.6.0"
+description = "Python bindings for GPT4All"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "gpt4all-2.6.0-py3-none-macosx_10_15_universal2.whl", hash = "sha256:2d750cf20a3dbfd9ed0ffbd780161eb2720ae923130e8a259e9dcc9a9b108983"},
+    {file = "gpt4all-2.6.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:506a0e0089044e36e0a0792cd7abba0e2f688669101bc927b8bae4f82409dcec"},
+    {file = "gpt4all-2.6.0-py3-none-win_amd64.whl", hash = "sha256:997c40a4c9ef639eef74861d9eb731e80be29ac8a455b2530df98fdeded6557f"},
+]
+
+[package.dependencies]
+requests = "*"
+tqdm = "*"
+
+[package.extras]
+dev = ["black", "isort", "mkautodoc", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "pytest", "setuptools", "twine", "typing-extensions (>=3.10)", "wheel"]
+
+[[package]]
 name = "greenlet"
 version = "3.0.3"
 description = "Lightweight in-process concurrent programming"
@@ -5860,4 +5879,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "00cce7d2fd0bcc624d0b7b6387d36bedbe0c580a486684973c0625a5cb6d95c3"
+content-hash = "568e0295a7fa8707e69840155520a75b3a52553b5d50e1fdc3b250258f12d50a"

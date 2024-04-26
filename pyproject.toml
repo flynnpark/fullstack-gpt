@@ -24,6 +24,7 @@ faiss-cpu = "^1.8.0"
 huggingface-hub = "^0.22.2"
 transformers = "^4.40.1"
 torch = "^2.3.0"
+gpt4all = "^2.6.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
