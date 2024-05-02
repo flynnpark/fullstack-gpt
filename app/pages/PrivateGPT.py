@@ -3,7 +3,9 @@ from typing import Final
 
 import streamlit as st
 from langchain.callbacks.base import BaseCallbackHandler
+from langchain.chat_models.ollama import ChatOllama
 from langchain.embeddings import CacheBackedEmbeddings
+from langchain.embeddings.ollama import OllamaEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import Document
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
@@ -11,7 +13,6 @@ from langchain.storage import LocalFileStore
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_loaders.unstructured import UnstructuredFileLoader
 from langchain_community.vectorstores.faiss import FAISS
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 FILES_DIR: Final[str] = ".cache/private_files"
 EMBEDDINGS_DIR: Final[str] = ".cache/private_embeddings"
@@ -46,9 +47,9 @@ class ChatCallbackHandler(BaseCallbackHandler):
         self.message_box.markdown(self.message)
 
 
-llm = ChatOpenAI(
+llm = ChatOllama(
+    model="mistral:latest",
     temperature=0.1,
-    streaming=True,
     callbacks=[
         ChatCallbackHandler(),
     ],
@@ -75,7 +76,7 @@ def embed_file(file):
     )
     loader = UnstructuredFileLoader(file_path)
     docs = loader.load_and_split(splitter)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OllamaEmbeddings(model="mistral:latest")
     cached_embeddings = CacheBackedEmbeddings.from_bytes_store(embeddings, cache_path)
     vector_store = FAISS.from_documents(docs, cached_embeddings)
     retriever = vector_store.as_retriever()
@@ -105,17 +106,15 @@ def format_documents(documents: list[Document]):
     return "\n\n".join([doc.page_content for doc in documents])
 
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """Answer the question using ONLY the following context. If you don't know the answer just say you don't know. DON'T make anything up.\n\nContext: {context}""",
-        ),
-        (
-            "human",
-            """{question}""",
-        ),
-    ]
+prompt = ChatPromptTemplate.from_template(
+    """Answer the question using ONLY the following context and not your training data. If you don't know the answer, just say "I don't know". DON'T make anything up.
+
+Context:
+{context}
+
+Question:
+{question}
+"""
 )
 
 

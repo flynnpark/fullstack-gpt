@@ -8,7 +8,8 @@ Welcome to the **GPT** app! 📄✒️
 
 Here are the apps I made:
 
-- [ ] [DocumentGPT](/DocumentGPT)
-- [ ] [QuizGPT](/QuizGPT)
+- [x] [DocumentGPT](/DocumentGPT)
+- [x] [QuizGPT](/QuizGPT)
+- [x] [PrivateGPT](/PrivateGPT)
 """
 )
